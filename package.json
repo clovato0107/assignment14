@@ -1,0 +1,5 @@
+"scripts": {
+  "start": "react-scripts start",
+  "server": "json-server --watch db.json --port 5000"
+}
+  
