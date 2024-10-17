@@ -11,9 +11,12 @@ const App: React.FC = () => {
   const [taskText, setTaskText] = useState('');
 // json server
   useEffect(() => {
+    console.log("fetch Triggered")
     fetch('http://localhost:5000/tasks')
       .then(response => response.json())
-      .then(data => setTasks(data));
+      .then(data => {
+        console.log(data)
+        setTasks(data)});
   }, []);
 // create function
   const addTask = () => {
