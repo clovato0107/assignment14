@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 
-const Todo = ({ todo, onDelete, onUpdate }) => {
+interface TaskProps {
+  id: number;
+  text: string;
+  onDelete: (id: number) => void;
+  onUpdate: (id: number, text: string) => void;
+}
+
+const Task: React.FC<TaskProps> = ({ id, text, onDelete, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [updatedText, setUpdatedText] = useState(todo.text);
+  const [updatedText, setUpdatedText] = useState(text);
 
   const handleUpdate = () => {
-    onUpdate(todo.id, updatedText);
+    onUpdate(id, updatedText);
     setIsEditing(false);
   };
 
@@ -22,13 +29,13 @@ const Todo = ({ todo, onDelete, onUpdate }) => {
         </div>
       ) : (
         <div>
-          <span>{todo.text}</span>
+          <span>{text}</span>
           <button onClick={() => setIsEditing(true)}>Edit</button>
-          <button onClick={() => onDelete(todo.id)}>Delete</button>
+          <button onClick={() => onDelete(id)}>Delete</button>
         </div>
       )}
     </div>
   );
 };
 
-export default Todo;
+export default Task;

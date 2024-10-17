@@ -1,35 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from 'react';
+import TaskList from '../TaskList';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Task {
+  id: number;
+  text: string;
 }
 
-export default App
+const App: React.FC = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [taskText, setTaskText] = useState('');
+// json server
+  useEffect(() => {
+    fetch('http://localhost:5000/tasks')
+      .then(response => response.json())
+      .then(data => setTasks(data));
+  }, []);
+// create function
+  const addTask = () => {
+    if (taskText.trim() === '') return;
+
+    const newTask = { text: taskText };
+
+    fetch('http://localhost:5000/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTask),
+    })
+      .then(response => response.json())
+      .then(data => setTasks([...tasks, data]));
+
+    setTaskText('');
+  };
+// delete function
+  const deleteTask = (id: number) => {
+    fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'DELETE',
+    })
+      .then(() => setTasks(tasks.filter((task) => task.id !== id)));
+  };
+
+  const updateTask = (id: number, newText: string) => {
+    fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: newText }),
+    })
+      .then(response => response.json())
+      .then(updatedTask => {
+        setTasks(tasks.map((task) => (task.id === id ? updatedTask : task)));
+      });
+  };
+
+  return (
+    <div>
+      <h1>To-Do App</h1>
+      <input
+        value={taskText}
+        onChange={(e) => setTaskText(e.target.value)}
+        placeholder="Add a new task"
+      />
+      <button onClick={addTask}>Add Task</button>
+      <TaskList tasks={tasks} onDelete={deleteTask} onUpdate={updateTask} />
+    </div>
+  );
+};
+
+export default App;
+
